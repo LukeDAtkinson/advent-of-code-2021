@@ -1,3 +1,4 @@
+use std::collections::VecDeque;
 use std::fs::File;
 use std::io::{self, BufRead};
 use std::path::Path;
@@ -7,19 +8,17 @@ fn main() {
     if let Ok(lines) = read_lines("./input") {
         // Consumes the iterator, returns an (Optional) String
 
+        let mut last_three: VecDeque<Option<i32>> = VecDeque::from([None, None, None]);
         let mut count = 0;
-        let mut prev: Option<i32> = None;
-        for line in lines {
-            if let Ok(it) = line {
-                let cur: i32 = it.parse().unwrap();
-
-                if let Some(p) = prev {
-                    if p < cur {
-                        count += 1;
-                    }
+        for current in lines.flatten() {
+            let cur: i32 = current.parse().expect("Failed to parse depth");
+            let prev = last_three.pop_front().flatten();
+            if let Some(p) = prev {
+                if cur > p {
+                    count += 1;
                 }
-                prev = Some(cur);
             }
+            last_three.push_back(Some(cur))
         }
         println!("{}", count);
     }
