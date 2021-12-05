@@ -29,7 +29,7 @@ impl SubState {
 #[derive(Debug, PartialEq)]
 enum Movement {
     Forward(i32),
-    Down(i32),
+    Aim(i32),
 }
 
 impl Add<Movement> for SubState {
@@ -40,7 +40,7 @@ impl Add<Movement> for SubState {
             Movement::Forward(distance) => {
                 Self::new(self.x + distance, self.y + self.aim * distance, self.aim)
             }
-            Movement::Down(aim_change) => Self::new(self.x, self.y, self.aim + aim_change),
+            Movement::Aim(aim_change) => Self::new(self.x, self.y, self.aim + aim_change),
         }
     }
 }
@@ -56,12 +56,12 @@ impl FromStr for Movement {
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
         let split = s.split_once(' ');
-        let (direction, dist_str) = split.expect("Failed to split input string");
-        let distance: i32 = dist_str.parse().expect("Failed to parse distance");
+        let (direction, amount_str) = split.expect("Failed to split input string");
+        let amount: i32 = amount_str.parse().expect("Failed to parse amount");
         match direction {
-            "forward" => Ok(Movement::Forward(distance)),
-            "up" => Ok(Movement::Down(-distance)),
-            "down" => Ok(Movement::Down(distance)),
+            "forward" => Ok(Movement::Forward(amount)),
+            "up" => Ok(Movement::Aim(-amount)),
+            "down" => Ok(Movement::Aim(amount)),
             _ => Err(()),
         }
     }
