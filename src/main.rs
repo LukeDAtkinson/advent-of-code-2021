@@ -8,17 +8,15 @@ fn main() {
     if let Ok(lines) = read_lines("./input") {
         // Consumes the iterator, returns an (Optional) String
 
-        let mut last_three: VecDeque<Option<i32>> = VecDeque::from([None, None, None]);
+        let mut last_three = VecDeque::from([0,0,0]);
         let mut count = 0;
         for current in lines.flatten() {
             let cur: i32 = current.parse().expect("Failed to parse depth");
-            let prev = last_three.pop_front().flatten();
-            if let Some(p) = prev {
-                if cur > p {
-                    count += 1;
-                }
+            let prev = last_three.pop_front().expect("Missing previous depth");
+            if prev != 0 && cur > prev {
+                count += 1;
             }
-            last_three.push_back(Some(cur))
+            last_three.push_back(cur);
         }
         println!("{}", count);
     }
