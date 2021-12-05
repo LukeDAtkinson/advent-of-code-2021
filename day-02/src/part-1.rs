@@ -6,19 +6,14 @@ use std::path::Path;
 use std::str::FromStr;
 
 #[derive(Debug, PartialEq)]
-struct SubState {
+struct Movement {
     x: i32,
     y: i32,
-    aim: i32,
 }
 
-impl SubState {
-    fn new(x: i32, y: i32, aim: i32) -> Self {
-        Self { x, y, aim }
-    }
-
-    fn zero() -> Self {
-        Self::new(0, 0, 0)
+impl Movement {
+    fn new(x: i32, y: i32) -> Self {
+        Self { x, y }
     }
 
     fn product(self) -> i32 {
@@ -26,28 +21,18 @@ impl SubState {
     }
 }
 
-#[derive(Debug, PartialEq)]
-enum Movement {
-    Forward(i32),
-    Down(i32),
-}
+impl Add for Movement {
+    type Output = Movement;
 
-impl Add<Movement> for SubState {
-    type Output = SubState;
-
-    fn add(self, rhs: Movement) -> Self::Output {
-        match rhs {
-            Movement::Forward(distance) => {
-                Self::new(self.x + distance, self.y + self.aim * distance, self.aim)
-            }
-            Movement::Down(aim_change) => Self::new(self.x, self.y, self.aim + aim_change),
-        }
+    fn add(self, rhs: Self) -> Self::Output {
+        Movement::new(self.x + rhs.x, self.y + rhs.y)
     }
 }
 
-impl Sum<Movement> for SubState {
-    fn sum<I: Iterator<Item = Movement>>(iter: I) -> Self {
-        iter.fold(SubState::zero(), |accum, it| accum + it)
+impl Sum for Movement {
+    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+        iter.reduce(|accum, it| accum + it)
+            .expect("Error summing movements")
     }
 }
 
@@ -58,10 +43,11 @@ impl FromStr for Movement {
         let split = s.split_once(' ');
         let (direction, dist_str) = split.expect("Failed to split input string");
         let distance: i32 = dist_str.parse().expect("Failed to parse distance");
+
         match direction {
-            "forward" => Ok(Movement::Forward(distance)),
-            "up" => Ok(Movement::Down(-distance)),
-            "down" => Ok(Movement::Down(distance)),
+            "forward" => Ok(Movement::new( distance, 0 )),
+            "up" => Ok(Movement::new( 0, -distance )),
+            "down" => Ok(Movement::new( 0, distance )),
             _ => Err(()),
         }
     }
@@ -69,14 +55,14 @@ impl FromStr for Movement {
 
 fn main() {
     if let Ok(lines) = read_lines("./input") {
-        let sub_state: SubState = lines
+        let sum_movement: Movement = lines
             .flatten()
             .map(|instruction| Movement::from_str(instruction.as_str()))
             .flatten()
             .sum();
 
-        println!("Movement: {:?}", sub_state);
-        println!("Result: {}", sub_state.product());
+        println!("Movement: {:?}", sum_movement);
+        println!("Result: {}", sum_movement.product());
     }
 }
 
