@@ -71,8 +71,7 @@ fn main() {
     if let Ok(lines) = read_lines("./input") {
         let sub_state: SubState = lines
             .flatten()
-            .map(|instruction| instruction.parse())
-            .flatten()
+            .flat_map(|instruction| instruction.parse())
             .sum();
 
         println!("Movement: {:?}", sub_state);
