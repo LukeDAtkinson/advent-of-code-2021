@@ -1,0 +1,3 @@
+Gamma: 784
+Epsilon: 3311
+Result: 2595824
