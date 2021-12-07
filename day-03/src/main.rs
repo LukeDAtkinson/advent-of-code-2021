@@ -55,8 +55,9 @@ impl Add for Diagnostic {
         Self::new(result)
     }
 }
+
 impl Sum for Diagnostic {
-    fn sum<I: Iterator<Item = Self>>(iter: I) -> Self {
+    fn sum<I: Iterator<Item=Self>>(iter: I) -> Self {
         iter.reduce(|accum, curr| accum + curr)
             .expect("Error summing Diagnostics")
     }
