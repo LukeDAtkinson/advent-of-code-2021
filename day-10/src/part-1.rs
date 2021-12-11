@@ -6,23 +6,19 @@ use std::path::Path;
 
 fn main() {
     if let Ok(lines) = read_lines("./input") {
-        let mut scores: Vec<u64> = lines
+        let total: i32 = lines
             .flatten()
             .map(|s| s.chars().collect::<Vec<char>>())
-            .map(|cs| compute_autocomplete_score(cs))
+            .map(|chs| compute_syntax_error_score(chs))
             .flatten()
-            .collect();
-        println!("scores: {:?}", scores);
-        scores.sort();
-        println!("scores: {:?}", scores);
-        let result = scores.get(scores.len() / 2);
-        println!("result: {}", result.unwrap());
+            .sum();
+        println!("Total: {}", total);
     }
 }
 
-fn compute_autocomplete_score(chars: Vec<char>) -> Option<u64> {
+fn compute_syntax_error_score(chars: Vec<char>) -> Option<i32> {
     let mut parse_queue = VecDeque::new();
-    let result = chars.iter().find_map(|c| match c {
+    chars.iter().find_map(|c| match c {
         '(' | '{' | '[' | '<' => {
             parse_queue.push_front(c);
             None
@@ -60,24 +56,7 @@ fn compute_autocomplete_score(chars: Vec<char>) -> Option<u64> {
             }
         }
         _ => None,
-    });
-    println!("Ending parse queue: {:?}", parse_queue);
-    if result.is_some() {
-        None
-    } else {
-        let mut score: u64 = 0;
-        while let Some(c) = parse_queue.pop_front() {
-            score *= 5;
-            score += match c {
-                &'(' => 1,
-                &'[' => 2,
-                &'{' => 3,
-                &'<' => 4,
-                &_ => 0,
-            }
-        }
-        Some(score)
-    }
+    })
 }
 
 // The output is wrapped in a Result to allow matching on errors
